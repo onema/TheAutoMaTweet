@@ -45,7 +45,7 @@ aws iam create-role \
 ```
 
 #### Create a policy
-Note that I have included a simple policy file. 
+I have included a simple policy file. **PLEASE NOTE THIS POLICY IS VERY OPEN AND SHOULD ONLY BE USED FOR TEST APPS**
 
 ```bash
 aws iam create-policy \
