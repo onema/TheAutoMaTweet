@@ -25,7 +25,7 @@ import scala.util.Random
 class AutoMaTweet {
   private val s3Client = new AmazonS3Client
   private val rekognitionClient = AmazonRekognitionClientBuilder.standard().build()
-  private val tweetMessage = "I'm %f%% sure this picture contains a %s.\nMade with \u2764 in Scala!\n#%s"
+  private val tweetMessage = "I'm %f%% sure this picture contains a %s.\n#%s"
 
   // Twitter client initialization
   private val env = sys.env
@@ -126,11 +126,17 @@ class AutoMaTweet {
       labels.foreach(label => Console.println(s"${label.getName}: ${label.getConfidence.toString}"))
       val label = selectRandomLabel(labels)
       val tags = labels.map(label => label.getName).mkString(" #")
-      val message = tweetMessage.format(label.getConfidence, label.getName, tags)
+      var message: String = ""
+      if (tags.isEmpty) {
+        message = "Could not identify any elements in this picture"
+      } else {
+        message = tweetMessage.format(label.getConfidence, label.getName, tags)
+      }
       Console.println(s"Message is $message")
 
-      Console.println("Trying twiter.updateStatus")
-      val status = new StatusUpdate(message.substring(0, 140))
+      Console.println("Trying twitter.updateStatus")
+      val text = if (message.length > 140) message.substring(0, 140) else message
+      val status = new StatusUpdate(text)
       status.setMedia(file)
       twitter.updateStatus(status)
     } catch {
